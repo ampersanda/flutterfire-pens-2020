@@ -12,8 +12,10 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController =
+      TextEditingController(text: 'ampersanda.clj@icloud.com');
+  final TextEditingController _passwordController =
+      TextEditingController(text: '123456');
 
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
@@ -58,7 +60,7 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
           SizedBox(height: 16.0),
           FlatButton(
-            onPressed: () {},
+            onPressed: _isLoading ? null : _signIn,
             color: Colors.blue,
             child: Text(
               'SIGN IN',
@@ -71,6 +73,24 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _signIn() async {
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    // guard
+    if (email.isEmpty || password.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Perhatian'),
+            content: Text('Email dan password tidak boleh kosong'),
+          );
+        },
+      );
+
+      return;
+    }
+
     // TODO(lucky): do validate forms
     final FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -80,8 +100,8 @@ class _SignInScreenState extends State<SignInScreen> {
       });
 
       final UserCredential credential = await auth.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
+        email: email,
+        password: password,
       );
 
       Navigator.pushNamedAndRemoveUntil(
@@ -89,8 +109,16 @@ class _SignInScreenState extends State<SignInScreen> {
         ChatScreen.routeName,
         (_) => false,
       );
-    } on Exception catch (e) {
-      // show something, e.g alert dialog
+    } on FirebaseAuthException catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Perhatian'),
+            content: Text(e.toString()),
+          );
+        },
+      );
     } finally {
       setState(() {
         _isLoading = false;
