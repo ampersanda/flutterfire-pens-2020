@@ -13,7 +13,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailController =
-      TextEditingController(text: 'ampersanda.clj@icloud.com');
+      TextEditingController(text: 'user2@email.com');
   final TextEditingController _passwordController =
       TextEditingController(text: '123456');
 
@@ -82,8 +82,8 @@ class _SignInScreenState extends State<SignInScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Perhatian'),
-            content: Text('Email dan password tidak boleh kosong'),
+            title: Text('Alert'),
+            content: Text('Email or password can\'t be empty'),
           );
         },
       );
@@ -104,17 +104,19 @@ class _SignInScreenState extends State<SignInScreen> {
         password: password,
       );
 
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        ChatScreen.routeName,
-        (_) => false,
-      );
+      if (credential != null) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          ChatScreen.routeName,
+          (_) => false,
+        );
+      }
     } on FirebaseAuthException catch (e) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Perhatian'),
+            title: Text('Alert'),
             content: Text(e.toString()),
           );
         },
